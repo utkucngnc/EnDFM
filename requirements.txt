@@ -1,0 +1,11 @@
+lpips
+numpy
+Pillow
+pytorch_wavelets
+torch
+torchvision
+tqdm
+optuna
+scikit-image
+yaml
+opencv-python

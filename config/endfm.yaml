@@ -1,0 +1,102 @@
+experiment_name: endfm
+
+dataloader:
+# Arguments for the input data
+  batch_size: 1
+  shuffle: False
+  num_workers: 8
+
+ddfm:
+  # Arguments for the DDFM model
+  record: False
+  save_lr: False
+  mode: RGB
+  model:
+    image_size: 256
+    num_channels: 256
+    num_res_blocks: 2
+    channel_mult: ""
+    learn_sigma: True
+    class_cond: False
+    use_checkpoint: False
+    attention_resolutions: 32,16,8
+    num_heads: 4
+    num_head_channels: 64
+    num_heads_upsample: -1
+    use_scale_shift_norm: True
+    dropout: 0.0
+    resblock_updown: True
+    use_fp16: False
+    use_new_attention_order: False
+
+    model_path: models/256x256_diffusion_uncond.pt
+  
+  # Arguments for the DDFM sampling
+  diffusion:
+    sampler: ddim
+    steps: 1000
+    noise_schedule: linear
+    model_mean_type: epsilon 
+    model_var_type: learned_range
+    dynamic_threshold: False
+    clip_denoised: True
+    rescale_timesteps: False
+    timestep_respacing: 100
+
+diwa:
+  # Arguments for the DIWA model
+  data:
+    scale_factor: 2
+    resample: bicubic
+    mode: L
+  save_lr: False
+  phase: val
+  path:
+    log: logs
+    tb_logger: tb_logger
+    results: results
+    checkpoint: checkpoint
+    resume_state: models/I400000_E4763
+
+  model:
+    which_model_G: wave
+    finetune_norm: False
+    unet:
+      in_channel: 8
+      out_channel: 4
+      inner_channel: 128
+      norm_groups: 32
+      channel_multiplier: [1, 2, 4, 4, 8, 8]
+      attn_res: [16]
+      res_blocks: 2
+      dropout: 0.3
+    beta_schedule:
+      train:
+        schedule: linear
+        n_timestep: 2000
+        linear_start: 1e-6
+        linear_end: 1e-2
+      val:
+        schedule: linear
+        n_timestep: 500
+        linear_start: 1e-6
+        linear_end: 1e-2
+    diffusion:
+      image_size: 512
+      channels: 1
+      conditional: true
+      loss_type: [0, 1.3]
+
+  train:
+    n_iter: 8e6
+    val_freq: 4e3
+    save_checkpoint_freq: 12e3
+    print_freq: 1e3
+    optimizer:
+      type: adamw
+      lr: 2e-5
+      weight_decay: 1e-4
+    ema_scheduler:
+      step_start_ema: 5e3
+      update_ema_every: 1
+      ema_decay: 0.9999

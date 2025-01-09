@@ -1,0 +1,11 @@
+# Ignore all __pycache__ directories recursively
+**/__pycache__/
+
+# Ignore the contents of models, input, input2, and results folders
+models/*
+input/*
+input2/*
+results/*
+
+# Ignore .DS_Store files
+.DS_Store
