@@ -19,7 +19,7 @@ class EnDFM:
 
         self.config = args.config
         self.gpu_ids = self.config['gpu_ids']
-        self.device_str = 'cpu' if not self.gpu_ids else [f'cuda:{gpu}' for gpu in self.gpu_ids]
+        self.device_str = self.config['env']
         self.device = torch.device(self.device_str)
         logger.info(f'Device set to {self.device_str}.')
 
@@ -54,7 +54,7 @@ class EnDFM:
         
         # Load model
         model = guided_diffusion.unet.create_model(**model_config)
-        model = model.to(self.device)
+        model = model.to(self.device) if not self.config['distributed'] else torch.nn.DataParallel(model).to(self.device)
         model.eval()
 
         # Load diffusion sampler
@@ -125,8 +125,9 @@ class EnDFM:
         # Load configurations
         model_config = self.config['diwa']
         model_config['phase'] = 'val'
-        model_config['gpu_ids'] = self.device_str if self.gpu_ids else None
-        model_config['distributed'] = False
+        model_config['gpu_ids'] = self.gpu_ids
+        model_config['distributed'] = self.config['distributed']
+        model_config['env'] = self.device_str
         batch_size, shuffle, num_workers = self.config['dataloader'].values()
         save_lr = model_config['save_lr']
 

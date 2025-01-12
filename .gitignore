@@ -9,6 +9,3 @@ results/*
 
 # Ignore .DS_Store files
 .DS_Store
-
-# Ignore sandbox scripts
-deneme.py

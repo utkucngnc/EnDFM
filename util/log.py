@@ -38,11 +38,23 @@ def exp_to_num(data):
     else:
         return data
 
+def check_env():
+    if torch.cuda.is_available():
+        return 'cuda', [gpu for gpu in range(torch.cuda.device_count())]
+    elif torch.mps.is_available():
+        return 'mps', [mps for mps in range(torch.mps.device_count())]
+    else:
+        return 'cpu', None
+
 
 def prepare(args):
     # Load config file
     config = convert_values(load_yaml(args.config))
-    config['gpu_ids'] = [int(f) for f in range(torch.cuda.device_count())] if torch.cuda.is_available() else None
+    config['env'], config['gpu_ids'] = check_env()
+    try:
+        config['distributed'] = False if len(config['gpu_ids']) == 1 else True
+    except TypeError:
+        config['distributed'] = False
     args.config = config
     if isinstance(args.input, list):
         config['fuse'] = True

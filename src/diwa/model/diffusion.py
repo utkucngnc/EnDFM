@@ -191,7 +191,11 @@ class GaussianDiffusion(nn.Module):
 
         sr_HFreqs = torch.cat([sr_images_HL, sr_images_LH, sr_images_HH], 2)
         sr_images = self.ifm((sr_images_LL, [sr_HFreqs]))
-        sr_images = F.interpolate(sr_images, size=(targetW, targetH), mode='bicubic')
+        # MPS does not support bicubic interpolation yet
+        if sr_images.device.type == 'mps':
+            sr_images = F.interpolate(sr_images, size=(targetW, targetH), mode='nearest')
+        else:
+            sr_images = F.interpolate(sr_images, size=(targetW, targetH), mode='bicubic')
 
         return sr_images
 
