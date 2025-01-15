@@ -9,3 +9,6 @@ results/*
 
 # Ignore .DS_Store files
 .DS_Store
+
+# Ignore dummy scripts
+deneme.py

@@ -492,7 +492,11 @@ def betas_for_alpha_bar(num_diffusion_timesteps, alpha_bar, max_beta=0.999):
 # ================
 
 def extract_and_expand(array, time, target):
-    array = torch.from_numpy(array).to(target.device)[time].float()
+    try:
+        array = torch.from_numpy(array).to(target.device)[time].float()
+    except TypeError:
+        array = torch.from_numpy(array.astype(np.float32)).to(target.device)[time].float()
+
     while array.ndim < target.ndim:
         array = array.unsqueeze(-1)
     return array.expand_as(target)

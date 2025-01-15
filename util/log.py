@@ -55,9 +55,9 @@ def prepare(args):
         config['distributed'] = False if len(config['gpu_ids']) == 1 else True
     except TypeError:
         config['distributed'] = False
-    args.config = config
     if isinstance(args.input, list):
         config['fuse'] = True
+    args.config = config
         
     # Set up experiment directory
     experiment_dir = os.path.join(args.output,f'{config['experiment_name']}_{get_timestamp()}')
